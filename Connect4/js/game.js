@@ -1,6 +1,11 @@
  // -- objeto que contém as configurações do jogo
  var gameConfig = {
     type: Phaser.AUTO,
+    scale:{
+        mode: Phaser.Scale.FIT,
+        parent: 'phaser-example',
+        //autoCenter: Phaser.Scale.CENTER_BOTH,
+    },
     width: 1280,
     height: 1000,
     backgroundColor: 0x6120c9,
@@ -14,7 +19,8 @@
     scene: [BootScene,
             MenuScene,
             InstructionsScene,
-            WorldScene]
+            WorldScene,
+            GameOverScene]
 }
 
 var game = new Phaser.Game(gameConfig);
