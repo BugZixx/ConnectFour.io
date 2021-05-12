@@ -17,6 +17,8 @@ const server = require("http").Server(app);
 
 const io = require("socket.io")(server);
 
+var playing = false;
+
 app.use(express.static(__dirname + "/public"));
 
 app.get("/", function (req, res) {
@@ -88,7 +90,8 @@ io.on("connection", function (socket) {
         serverBoard[columnSpot - 1][column] = 2;
       }
 
-      socket.emit("sendUpdatedBoard", column, columnSpot, myId);
+      socket.emit("sendUpdatedBoard", column, columnSpot, myId, playing);
+      playing = !playing;
       socket.broadcast.emit("sendUpdatedBoard", column, columnSpot, myId);
       console.log(serverBoard);
     }
