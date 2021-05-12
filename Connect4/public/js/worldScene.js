@@ -8,19 +8,16 @@ class WorldScene extends Phaser.Scene {
     this.socket = io();
 
     worldScene = this;
-    
-    
+
     const self = this;
     this.players = this.physics.add.group();
-
-    
 
     function addPlayer(self, playerInfo) {
       self.player = self.add.zone(0, 0, 6, 6);
       self.player.playerId = playerInfo.playerId;
       self.player.actualId = playerInfo.actualId;
     }
-     
+
     function removePlayer(self, playerId) {
       self.players.getChildren().forEach((player) => {
         if (playerId === player.playerId) {
@@ -28,9 +25,8 @@ class WorldScene extends Phaser.Scene {
         }
       });
     }
-  
 
-    this.socket.on('currentPlayers', function (players) {
+    this.socket.on("currentPlayers", function (players) {
       Object.keys(players).forEach(function (id) {
         if (players[id].playerId === self.socket.id) {
           //displayPlayers(self, players[id], 'ship');
@@ -41,15 +37,13 @@ class WorldScene extends Phaser.Scene {
       });
     });
 
-    this.socket.on('disconnected', function () {
-      console.log('user disconnected');
+    this.socket.on("disconnected", function () {
+      console.log("user disconnected");
       // remove player from server
       removePlayer(self, socket.id);
       // remove this player from our players object
       delete players[socket.id];
     });
-
-   
 
     this.board = this.add
       .image(gameConfig.width / 2, gameConfig.height / 2, "board")
@@ -152,10 +146,9 @@ class WorldScene extends Phaser.Scene {
             tableSpots
           });
           */
-          console.log(this.player.actualId);
+          console.log("hey" + this.player.actualId);
         } else {
           column01Spots = 6;
-          console.log(column01Spots);
         }
       },
       this
@@ -176,7 +169,7 @@ class WorldScene extends Phaser.Scene {
           });
           */
 
-          console.log(player.actualId);
+          console.log(this.player.actualId);
         } else {
           column02Spots = 6;
         }
@@ -199,7 +192,7 @@ class WorldScene extends Phaser.Scene {
           });
           */
 
-          console.log(player.actualId);
+          console.log(this.player.actualId);
         } else {
           column03Spots = 6;
         }
@@ -222,7 +215,7 @@ class WorldScene extends Phaser.Scene {
           });
           */
 
-          console.log(player.actualId);
+          console.log(this.player.actualId);
         } else {
           column04Spots = 6;
         }
@@ -238,14 +231,14 @@ class WorldScene extends Phaser.Scene {
           column05Spots++;
           console.log("Column 5 spots:" + column05Spots);
           this.checkSpot(column05Spots, 4, this.player.actualId);
-          
+
           /*
           this.socket.emit("receiveBoard", {
             tableSpots
           });
           */
 
-          console.log(player.actualId);
+          console.log(this.player.actualId);
         } else {
           column05Spots = 6;
         }
@@ -267,8 +260,8 @@ class WorldScene extends Phaser.Scene {
             tableSpots
           });
           */
-          
-          console.log(player.actualId);
+
+          console.log(this.player.actualId);
         } else {
           column06Spots = 6;
         }
@@ -291,13 +284,60 @@ class WorldScene extends Phaser.Scene {
             tableSpots
           });
           */
-          console.log(player.actualId);
+          console.log(this.player.actualId);
         } else {
           column07Spots = 6;
         }
       },
       this
     );
+
+    this.socket.on("sendUpdatedBoard", function (column, columnSpot, myId) {
+      var currentColor;
+
+      switch (column) {
+        case 0:
+          column01Spots = columnSpot;
+          break;
+        case 1:
+          column02Spots = columnSpot;
+          break;
+        case 2:
+          column03Spots = columnSpot;
+          break;
+        case 3:
+          column04Spots = columnSpot;
+          break;
+        case 4:
+          column05Spots = columnSpot;
+          break;
+        case 5:
+          column06Spots = columnSpot;
+          break;
+        case 6:
+          column07Spots = columnSpot;
+          break;
+      }
+
+      if (myId == 1) {
+        currentColor = Phaser.Display.Color.GetColor(255, 0, 0);
+      } else if (myId == 2) {
+        currentColor = Phaser.Display.Color.GetColor(255, 255, 0);
+      }
+      worldScene.spot = worldScene.add.circle(
+        gameConfig.width / 2 - 270 + column * 90,
+        gameConfig.height / 2 + 320 - columnSpot * 90,
+        40,
+        currentColor,
+        1
+      );
+
+      if (myId == 1) {
+        tableSpots[columnSpot - 1][column] = 1;
+      } else if (myId == 2) {
+        tableSpots[columnSpot - 1][column] = 2;
+      }
+    });
   }
 
   // -- UPDATE  ------------------------------------------------------------------------------------
@@ -380,60 +420,6 @@ class WorldScene extends Phaser.Scene {
         }
       }
     }
-
-    this.socket.on('sendUpdatedBoard', function( column, columnSpot, myId){
-      var currentColor;
-
-      switch(column){
-        case 0:
-          column01Spots++;
-          break;
-
-        case 1:
-          column02Spots++;
-          break;
-
-        case 2:
-          column03Spots++;
-          break;
-
-        case 3:
-          column04Spots++;
-          break;
-
-        case 4:
-          column05Spots++;
-          break;
-
-        case 5:
-          column06Spots++;
-          break;
-
-        case 6:
-          column07Spots++;
-          break;
-      }
-
-      if(myId == 1){
-        currentColor = Phaser.Display.Color.GetColor(255, 0, 0);
-      }else if(myId == 2){
-        currentColor = Phaser.Display.Color.GetColor(255, 255, 0);
-      }
-      worldScene.spot = worldScene.add.circle(
-        gameConfig.width / 2 - 270 + column * 90,
-        gameConfig.height / 2 + 320 - columnSpot * 90,
-        40,
-        currentColor,
-        1
-      );
-
-      if(myId == 1){
-        tableSpots[columnSpot - 1][column] = 1;
-      } else if(myId == 2){
-        tableSpots[columnSpot - 1][column] = 2;
-      }
-    });
-
   }
 
   checkSpot(columnSpot, column, myId) {
@@ -472,13 +458,12 @@ class WorldScene extends Phaser.Scene {
 
     console.log(tableSpots);
 
-    this.socket.emit('checkSpots', {
-      columnSpot, column, myId
+    this.socket.emit("checkSpots", {
+      columnSpot,
+      column,
+      myId,
     });
   }
-
-  
-
 }
 
 // -- dá resize à área de f conforme o monitor
